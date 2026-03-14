@@ -5,11 +5,14 @@ using namespace std;
 
 void dodajOsobe(int *tabNrIndex, string *tabImie, string *tabNazwisko, int nrIndex, string imie, string nazwisko, int tabSize);
 
-void zmianaDanychOsoby(int *tabNrIndex, string *tabImie, string *tabNazwisko, int nrIndex, string imie, string nazwisko, int tabSize);
+void zmianaDanychOsoby(int *tabNrIndex, string *tabImie, string *tabNazwisko, int nrIndex, string imie, string nazwisko, int tabSize, int wybor);
 
 void ustawObecnosc(string *tabNazwisko, bool *tabObecnosci, string nazwisko, bool obecnosc);
 
-void drukujListe(string *tabImie, string *tabNazwisko, bool *tabObecnosci, int tabSize);
+void drukujListeObecnosci(string *tabImie, string *tabNazwisko, bool *tabObecnosci, int tabSize);
+
+//Lista osob do zmiany danych
+void drukujListeOsob(int *tabNrIndex, string *tabImie, string *tabNazwisko, int tabSize);
 
 
 int main(){
@@ -18,19 +21,20 @@ int main(){
     //================
 
     //=============================
-    bool CzyProgramOdpalony = true;
-    const int size = 10;
+    bool CzyProgramOdpalony = true; //dzialanie programu
+    const int size = 10;          //wielkosc tablic
+    int wybor = 0;              //pomocnicza zmienna do wyborow
     //=============================
-    bool tabObecnosc[size];
+    bool tabObecnosc[size];     //obecnosc
     bool obecnosc;
     //=============================
-    int nrIndex;    
+    int nrIndex;                //index
     int tabNrIndex[size];
     //=============================
-    string imie;
+    string imie;                //imie
     string tabImie[size];
     //=============================
-    string nazwisko;
+    string nazwisko;            //nazwisko
     string tabNazwisko[size];
     //=============================
 
@@ -62,8 +66,7 @@ int main(){
         cout << "\n### 4. Drukuj liste     ###";
         cout << "\n### 5. Zakoncz Program  ###";
         cout << "\n#############################";
-        cout << "\nPodaj numer:";
-        int wybor = 0;
+        cout << "\nPodaj numer: ";
         cin >> wybor;
         cout << "\n";
 
@@ -82,7 +85,7 @@ int main(){
             cin >> imie;
             cout << "\nPodaj nazwisko: ";               
             cin >> nazwisko;
-            cout << "\nPodaj index";
+            cout << "\nPodaj index: ";
             cin >> nrIndex;
 
             dodajOsobe(tabNrIndex, tabImie, tabNazwisko, nrIndex, imie, nazwisko, size);
@@ -92,16 +95,17 @@ int main(){
         //ZmianaDanychOsoby
         //===============        
         case 2:
-            cout << "\n###| Zmiene Danych Osoby |###";
-            cout << "\nPodaj index osoby: ";
+            cout << "\n###| Zmiana Danych Osoby |###";
+            drukujListeOsob(tabNrIndex, tabImie, tabNazwisko, size);
+            cout << "\nPodaj nr z listy: ";
+            cin >> wybor;
+            cout << "\nPodaj imie: ";
             cin >> imie;
             cout << "\nPodaj nazwisko: ";               
             cin >> nazwisko;
-            cout << "\nPodaj index";
+            cout << "\nPodaj index: ";
             cin >> nrIndex;
-
-            dodajOsobe(tabNrIndex, tabImie, tabNazwisko, nrIndex, imie, nazwisko, size);
-
+            zmianaDanychOsoby(tabNrIndex, tabImie, tabNazwisko, nrIndex, imie, nazwisko, size, wybor);
             break;
         //====================
         //Ustawianie obecnosci
@@ -112,7 +116,7 @@ int main(){
         //Drukowanie listy
         //================
         case 4:
-            drukujListe(tabImie, tabNazwisko, tabObecnosc, size);
+            drukujListeObecnosci(tabImie, tabNazwisko, tabObecnosc, size);
             break;
         //===================
         //Zamkniecie programu
@@ -145,7 +149,24 @@ void dodajOsobe(int *tabNrIndex, string *tabImie, string *tabNazwisko, int nrInd
     }
 }
 
-void drukujListe(string *tabImie, string *tabNazwisko, bool *tabObecnosci, int tabSize){
+void zmianaDanychOsoby(int *tabNrIndex, string *tabImie, string *tabNazwisko, int nrIndex, string imie, string nazwisko, int tabSize, int wybor){
+        if(wybor <= tabSize && wybor > -1){
+            tabNrIndex[wybor] = nrIndex;
+            tabImie[wybor] = imie;
+            tabNazwisko[wybor] = nazwisko;
+        }
+}
+
+void drukujListeOsob(int *tabNrIndex, string *tabImie, string *tabNazwisko, int tabSize){
+    cout << "\n###| Lista Osob |###";
+        for(int i = 0; i < tabSize; i++){
+        if(tabNrIndex[i] != 0){
+            cout << "\n" << i << ": " << tabNrIndex[i] << " " << tabImie[i] << " " << tabNazwisko[i];
+        } 
+    }
+}
+
+void drukujListeObecnosci(string *tabImie, string *tabNazwisko, bool *tabObecnosci, int tabSize){
     cout << "\n###| Lista |###";
     for(int i = 0; i < tabSize; i++){
         if(tabNazwisko[i] != "brak"){
@@ -157,5 +178,4 @@ void drukujListe(string *tabImie, string *tabNazwisko, bool *tabObecnosci, int t
             }
         } 
     }
-
 }
