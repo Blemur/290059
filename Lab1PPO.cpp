@@ -2,7 +2,6 @@
 #include <string>
 using namespace std;
 
-
 void dodajOsobe(int *tabNrIndex, string *tabImie, string *tabNazwisko, int nrIndex, string imie, string nazwisko, int tabSize);
 
 void zmianaDanychOsoby_Edycja(int *tabNrIndex, string *tabImie, string *tabNazwisko, int nrIndex, string imie, string nazwisko, int tabSize, int wybor);
