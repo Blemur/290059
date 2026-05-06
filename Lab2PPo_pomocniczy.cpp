@@ -79,9 +79,5 @@ int main(){
     cout << osoba1.getNr_Index() << endl;
 
     Osoba listaStudentow[10];
-
-    for(int i = 0; i < 10; i++){
-
-    }
 }
 
