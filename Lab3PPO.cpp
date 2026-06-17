@@ -17,10 +17,10 @@ class Osoba{
     //funkcje classy
     //==============
     public:
-    void setImie(string);
-    string getImie();
-    void setNazwisko(string);
-    string getNazwisko();
+    void setImie(string _imie)         { if(_imie.length() > 2)    imie = _imie; }
+    string getImie()                   { return imie; }
+    void setNazwisko(string _nazwisko) { if(_nazwisko.length() > 1) nazwisko = _nazwisko; }
+    string getNazwisko()               { return nazwisko; }
 };
 
 //=============
@@ -37,8 +37,8 @@ class Student : public Osoba{
     //funkcje classy
     //==============
     public:
-    void setNr_Index(string);
-    string getNr_Index();
+    void setNr_Index(string _nr_index) { if(_nr_index.length() > 1) nr_index = _nr_index; }
+    string getNr_Index()               { return nr_index; }
 };
 
 //====================
@@ -94,39 +94,6 @@ class InterfejsUzytkownika{
 //========================
 //Działania funkcji classy
 //========================
-
-//=====
-//Osoba
-//=====
-void Osoba::setImie(string _imie){
-    if(_imie.length() > 2){
-        imie = _imie;
-    }
-}
-string Osoba::getImie(){
-    return imie;
-}
-
-void Osoba::setNazwisko(string _nazwisko){
-    if(_nazwisko.length() > 1){
-        nazwisko = _nazwisko;
-    }
-}
-string Osoba::getNazwisko(){
-    return nazwisko;
-}
-
-//=======
-//Student
-//=======
-void Student::setNr_Index(string _nr_index){
-    if(_nr_index.length() > 1){
-        nr_index = _nr_index;
-    }
-}
-string Student::getNr_Index(){
-    return nr_index;
-}
 
 //==============
 //ListaObecnosci
@@ -210,7 +177,7 @@ void ListaObecnosci::zmianaDanych_Usuwanie(int wybor) {
 //====================
 InterfejsUzytkownika::InterfejsUzytkownika() {
     iluStudentow = 0;
-    tabOsob = NULL; // Zabezpieczenie przed uzyciem pustego wskaznika
+    tabOsob = NULL;
     lista = NULL;
 }
 
@@ -218,7 +185,6 @@ void InterfejsUzytkownika::setLista(ListaObecnosci *l) {
     lista = l;
 }
 
-// NOWA FUNKCJA ZE ZDJĘCIA (zielona linia)
 void InterfejsUzytkownika::setTablicaOsob(Student *tab) {
     tabOsob = tab;
 }
@@ -265,12 +231,10 @@ void InterfejsUzytkownika::petla() {
             cout << "\nPodaj nazwisko: "; cin >> nazwisko;
             cout << "\nPodaj index: "; cin >> nrIndex;
 
-            // Zapisujemy w tablicy z main() poprzez wskaznik
             tabOsob[iluStudentow].setImie(imie);
             tabOsob[iluStudentow].setNazwisko(nazwisko);
             tabOsob[iluStudentow].setNr_Index(nrIndex);
             
-            // Przekazujemy adres tego konkretnego studenta do listy
             lista->dodajOsobe(&tabOsob[iluStudentow]);
             iluStudentow++;
             break;
@@ -354,7 +318,7 @@ int main() {
     
     ui.setTablicaOsob(tabOsob);
     ui.setLista(&lista1);
-    
+
     ui.petla();
 
     return 0;
