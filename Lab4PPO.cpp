@@ -2,6 +2,14 @@
 #include <string>
 using namespace std;
 
+//===================
+//Interfejs
+//===================
+class IPrzedstawialny {
+    public:
+    virtual string przedstawSie() = 0;
+};
+
 //===========
 //Class Osoba
 //===========
@@ -18,16 +26,16 @@ class Osoba{
     //==============
     public:
     void setImie(string _imie)         { if(_imie.length() > 2)    imie = _imie; }
-    string getImie()                   { return imie; }
     void setNazwisko(string _nazwisko) { if(_nazwisko.length() > 1) nazwisko = _nazwisko; }
     string getNazwisko()               { return nazwisko; }
+    virtual void drukuj()              { cout << " OSOBA - imie: " << imie << " nazwisko: " << nazwisko; }
 };
 
 //=============
 //Class Student
 //=============
 
-class Student : public Osoba{
+class Student : public Osoba, public IPrzedstawialny{
     //==============
     //zmienne classy
     //==============
@@ -38,7 +46,26 @@ class Student : public Osoba{
     //==============
     public:
     void setNr_Index(string _nr_index) { if(_nr_index.length() > 1) nr_index = _nr_index; }
-    string getNr_Index()               { return nr_index; }
+    virtual void drukuj()              { cout << "STUDENT - imie: " << imie << " nazwisko: " << nazwisko << " index: " << nr_index; }
+    string przedstawSie()              { return " STUDENT - " + imie + " " + nazwisko + " index: " + nr_index; }
+};
+
+//================
+//Class Pracownik
+//================
+
+class Pracownik : public Osoba{
+    //==============
+    //zmienne classy
+    //==============
+    private:
+    string nr_pracownika;
+    //==============
+    //funkcje classy
+    //==============
+    public:
+    void setNr_Pracownika(string _nr_pracownika) { if(_nr_pracownika.length() > 1) nr_pracownika = _nr_pracownika; }
+    virtual void drukuj()                        { cout << " PRACOWNIK - imie: " << imie << " nazwisko: " << nazwisko << " nr: " << nr_pracownika; }
 };
 
 //====================
@@ -53,18 +80,23 @@ class ListaObecnosci{
     Student *tabOsob[10];
     bool tabObecnosci[10];
     int licznik;
+    string nazwaZajec;
+    Pracownik prowadzacy;
     //==============
     //funkcje classy
     //==============
     public:
     ListaObecnosci();
-    void dodajOsobe(Student*);
-    void ustawObecnosc(string, int);
+    void ustawZajecia(string, string, string, string);
+    void drukujNazwe();
+    bool dodajOsobe(Student*);
+    bool ustawObecnosc(string, int);
     void drukujListeObecnosci();
     //-------------------------
     void drukujListeOsob();
     void zmianaDanych_Edycja(int, string, string, string);
     void zmianaDanych_Usuwanie(int);
+    int getLicznik();
 };
 
 //==========================
@@ -76,7 +108,9 @@ class InterfejsUzytkownika{
     //zmienne classy
     //==============
     private:
-    ListaObecnosci *lista;
+    ListaObecnosci listy[10];
+    int ileList;
+    int aktualnaLista;
     Student *tabOsob;
     int iluStudentow;
     //==============
@@ -84,7 +118,6 @@ class InterfejsUzytkownika{
     //==============
     public:
     InterfejsUzytkownika();
-    void setLista(ListaObecnosci*);
     void setTablicaOsob(Student*);
     void petla();
 };
@@ -95,28 +128,51 @@ class InterfejsUzytkownika{
 //Działania funkcji classy
 //========================
 
+//===================
+//Funkcja z interfejsem
+//===================
+void drukuj(IPrzedstawialny* obj){
+    cout << "\n" << obj->przedstawSie();
+}
+
 //==============
 //ListaObecnosci
 //==============
 ListaObecnosci::ListaObecnosci() {
     licznik = 0;
+    nazwaZajec = "";
     for(int i = 0; i < 10; i++) {
         tabOsob[i] = NULL;
         tabObecnosci[i] = false;
     }
 }
 
-void ListaObecnosci::dodajOsobe(Student *osoba) {
+void ListaObecnosci::ustawZajecia(string _nazwaZajec, string _imie, string _nazwisko, string _nr) {
+    nazwaZajec = _nazwaZajec;
+    prowadzacy.setImie(_imie);
+    prowadzacy.setNazwisko(_nazwisko);
+    prowadzacy.setNr_Pracownika(_nr);
+}
+
+void ListaObecnosci::drukujNazwe() {
+    cout << nazwaZajec;
+    prowadzacy.drukuj();
+}
+
+bool ListaObecnosci::dodajOsobe(Student *osoba) {
     if(licznik < 10) {
         tabOsob[licznik] = osoba;
         tabObecnosci[licznik] = false;
         licznik++;
+        return true;
     } else {
         cout << "\nError! Lista jest pelna.";
+        return false;
     }
 }
 
-void ListaObecnosci::ustawObecnosc(string nazwisko, int wybor) {
+bool ListaObecnosci::ustawObecnosc(string nazwisko, int wybor) {
+    bool znaleziono = false;
     for(int i = 0; i < licznik; i++) {
         if(tabOsob[i]->getNazwisko() == nazwisko) {
             if(wybor == 1) {
@@ -124,14 +180,22 @@ void ListaObecnosci::ustawObecnosc(string nazwisko, int wybor) {
             } else {
                 tabObecnosci[i] = false;
             }
+            znaleziono = true;
         } 
     }
+    return znaleziono;
 }
 
 void ListaObecnosci::drukujListeObecnosci() {
+    if(licznik == 0) {
+        cout << "\nBrak osob na tej liscie.\n";
+        return;
+    }
     cout << "\n###| Lista Obecnosci |###";
     for(int i = 0; i < licznik; i++) {
-        cout << "\n" << i+1 << ": " << tabOsob[i]->getImie() << " " << tabOsob[i]->getNazwisko() << " - ";
+        cout << "\n" << i+1 << ": ";
+        tabOsob[i]->drukuj();
+        cout << " - ";
         if(tabObecnosci[i]) {
             cout << "Obecny";
         } else {
@@ -144,7 +208,8 @@ void ListaObecnosci::drukujListeObecnosci() {
 void ListaObecnosci::drukujListeOsob() {
     cout << "\n###| Lista Osob |###";
     for(int i = 0; i < licznik; i++) {
-        cout << "\n" << i << ": " << tabOsob[i]->getNr_Index() << " " << tabOsob[i]->getImie() << " " << tabOsob[i]->getNazwisko();
+        cout << "\n" << i << ": ";
+        tabOsob[i]->drukuj();
     }
 }
 
@@ -172,17 +237,18 @@ void ListaObecnosci::zmianaDanych_Usuwanie(int wybor) {
     }
 }
 
+int ListaObecnosci::getLicznik() {
+    return licznik;
+}
+
 //====================
 //InterfejsUzytkownika
 //====================
 InterfejsUzytkownika::InterfejsUzytkownika() {
     iluStudentow = 0;
-    tabOsob = NULL;
-    lista = NULL;
-}
-
-void InterfejsUzytkownika::setLista(ListaObecnosci *l) {
-    lista = l;
+    tabOsob = NULL; 
+    ileList = 0;
+    aktualnaLista = -1;
 }
 
 void InterfejsUzytkownika::setTablicaOsob(Student *tab) {
@@ -190,8 +256,7 @@ void InterfejsUzytkownika::setTablicaOsob(Student *tab) {
 }
 
 void InterfejsUzytkownika::petla() {
-    // Sprawdzenie czy main() przekazał nam tablice
-    if(tabOsob == NULL || lista == NULL) {
+    if(tabOsob == NULL) {
         cout << "Blad krytyczny: Interfejs nie otrzymal zrodla danych!";
         return;
     }
@@ -201,7 +266,7 @@ void InterfejsUzytkownika::petla() {
     //================
     bool CzyProgramOdpalony = true;
     int wybor = 0;
-    string imie, nazwisko, nrIndex;
+    string imie, nazwisko, nrIndex, nazwaZajec, nrPracownika;
 
     //==============
     //Pętla programu
@@ -210,22 +275,81 @@ void InterfejsUzytkownika::petla() {
         //==================
         //Interfejs programu
         //==================
-        cout << "\n###########################";
-        cout << "\n### 1. Dodaj Osobe      ###";
-        cout << "\n### 2. Zmien Dane Osoby ###";
-        cout << "\n### 3. Ustaw Obecnosc   ###";
-        cout << "\n### 4. Drukuj liste     ###";
-        cout << "\n### 5. Zakoncz Program  ###";
-        cout << "\n###########################";
+        cout << "\n#######################################";
+        cout << "\n### 1. Dodaj Prowadzacego i Zajecia ###";
+        cout << "\n### 2. Wybierz / Przelacz Zajecia   ###";
+        cout << "\n### 3. Dodaj Osobe                  ###";
+        cout << "\n### 4. Zmien Dane Osoby             ###";
+        cout << "\n### 5. Ustaw Obecnosc               ###";
+        cout << "\n### 6. Drukuj liste                 ###";
+        cout << "\n### 7. Zakoncz Program              ###";
+        cout << "\n#######################################";
+        
+        if(aktualnaLista != -1) {
+            cout << "\n[Wybrane zajecia: ";
+            listy[aktualnaLista].drukujNazwe();
+            cout << "]";
+        } else {
+            cout << "\n[Nie wybrano zadnych zajec]";
+        }
+        
         cout << "\nPodaj numer: ";
         cin >> wybor;
         cout << "\n";
 
         switch (wybor) {
         //===============
-        //Dodawanie osoby
+        //Tworzenie zajec
         //===============
         case 1:
+            if(ileList < 10) {
+                cout << "\n###| Nowe Zajecia |###";
+                cout << "\nPodaj nazwe zajec: "; cin >> nazwaZajec;
+                cout << "\nPodaj imie prowadzacego: "; cin >> imie;
+                cout << "\nPodaj nazwisko prowadzacego: "; cin >> nazwisko;
+                cout << "\nPodaj numer pracownika: "; cin >> nrPracownika;
+                
+                listy[ileList].ustawZajecia(nazwaZajec, imie, nazwisko, nrPracownika);
+                aktualnaLista = ileList;
+                ileList++;
+            } else {
+                cout << "\nError! Maksymalna ilosc zajec.";
+            }
+            break;
+        //=======================
+        //Wybieranie/zmiana zajec
+        //=======================
+        case 2:
+            if(ileList == 0) {
+                cout << "\nBrak utworzonych zajec.";
+            } else {
+                cout << "\n###| Wybierz Zajecia |###";
+                for(int i = 0; i < ileList; i++) {
+                    cout << "\n" << i << ": ";
+                    listy[i].drukujNazwe();
+                }
+                cout << "\nPodaj numer zajec: ";
+                cin >> wybor;
+                if(wybor >= 0 && wybor < ileList) {
+                    aktualnaLista = wybor;
+                } else {
+                    cout << "\nBledny numer zajec.";
+                }
+            }
+            break;
+
+        //===============
+        //Dodawanie osoby
+        //===============
+        case 3:
+            if(aktualnaLista == -1) {
+                cout << "\nError! Najpierw wybierz lub dodaj zajecia.";
+                break;
+            }
+            if(iluStudentow >= 10) {
+                cout << "\nError! Baza studentow jest pelna (max 10).";
+                break;
+            }
             cout << "\n###| Wybrano Dodaj Osobe |###";
             cout << "\nPodaj imie: "; cin >> imie;
             cout << "\nPodaj nazwisko: "; cin >> nazwisko;
@@ -235,14 +359,23 @@ void InterfejsUzytkownika::petla() {
             tabOsob[iluStudentow].setNazwisko(nazwisko);
             tabOsob[iluStudentow].setNr_Index(nrIndex);
             
-            lista->dodajOsobe(&tabOsob[iluStudentow]);
-            iluStudentow++;
+            if(listy[aktualnaLista].dodajOsobe(&tabOsob[iluStudentow])) {
+                iluStudentow++;
+            }
             break;
 
         //=============
         //Zmiana Danych
         //=============
-        case 2:
+        case 4:
+            if(aktualnaLista == -1) {
+                cout << "\nError! Najpierw wybierz lub dodaj zajecia.";
+                break;
+            }
+            if(listy[aktualnaLista].getLicznik() == 0) {
+                cout << "\nError! Brak osob na wybranej liscie. Nie mozna modyfikowac danych.";
+                break;
+            }
             cout << "\n###| Zmiana Danych Osoby |###";
             cout << "\n#######################################";
             cout << "\n### Wpisz 1 aby edytowac dane osoby ###";
@@ -253,19 +386,19 @@ void InterfejsUzytkownika::petla() {
             
             switch (wybor) {
                 case 1:
-                    lista->drukujListeOsob();
+                    listy[aktualnaLista].drukujListeOsob();
                     cout << "\nPodaj nr z listy: ";
                     cin >> wybor;
                     cout << "\nPodaj imie: "; cin >> imie;
                     cout << "\nPodaj nazwisko: "; cin >> nazwisko;
                     cout << "\nPodaj index: "; cin >> nrIndex;
-                    lista->zmianaDanych_Edycja(wybor, nrIndex, imie, nazwisko);
+                    listy[aktualnaLista].zmianaDanych_Edycja(wybor, nrIndex, imie, nazwisko);
                     break;
                 case 2:
-                    lista->drukujListeOsob();
+                    listy[aktualnaLista].drukujListeOsob();
                     cout << "\nPodaj nr z listy do usuniecia: ";
                     cin >> wybor;
-                    lista->zmianaDanych_Usuwanie(wybor);
+                    listy[aktualnaLista].zmianaDanych_Usuwanie(wybor);
                     break;
                 default:
                     cout << "\nWpisano bledna liczbe. Powrot...";
@@ -276,26 +409,40 @@ void InterfejsUzytkownika::petla() {
         //====================
         //Ustawianie obecnosci
         //====================
-        case 3:
+        case 5:
+            if(aktualnaLista == -1) {
+                cout << "\nError! Najpierw wybierz lub dodaj zajecia.";
+                break;
+            }
+            if(listy[aktualnaLista].getLicznik() == 0) {
+                cout << "\nError! Brak osob na wybranej liscie. Nie mozna sprawdzic obecnosci.";
+                break;
+            }
             cout << "\n###| Ustawianie Obecnosci |###";
             cout << "\nPodaj nazwisko osoby: ";
             cin >> nazwisko;
             cout << "\nCzy ta osoba jest obecna? [T: 1 | N: 2]: ";
             cin >> wybor;
-            lista->ustawObecnosc(nazwisko, wybor);
+            if(!listy[aktualnaLista].ustawObecnosc(nazwisko, wybor)) {
+                cout << "\nError! Nie znaleziono osoby o takim nazwisku.";
+            }
             break;
 
         //================
         //Drukowanie listy
         //================
-        case 4:
-            lista->drukujListeObecnosci();
+        case 6:
+            if(aktualnaLista == -1) {
+                cout << "\nError! Najpierw wybierz lub dodaj zajecia.";
+                break;
+            }
+            listy[aktualnaLista].drukujListeObecnosci();
             break;
 
         //===================
         //Zamkniecie programu
         //===================
-        case 5:
+        case 7:
             CzyProgramOdpalony = false;
             break;
 
@@ -309,16 +456,10 @@ void InterfejsUzytkownika::petla() {
 //####################################################################################
 
 int main() {
-    Student tabOsob[20]; 
-
-    ListaObecnosci lista1;
-    ListaObecnosci lista2;
-    
+    Student tabOsob[10];
     InterfejsUzytkownika ui;
-    
-    ui.setTablicaOsob(tabOsob);
-    ui.setLista(&lista1);
 
+    ui.setTablicaOsob(tabOsob);
     ui.petla();
 
     return 0;
